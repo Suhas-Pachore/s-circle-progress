@@ -1,6 +1,6 @@
 import { Polymer,html } from '@polymer/polymer/polymer-legacy.js';
 import '@polymer/iron-flex-layout/iron-flex-layout';
-import '@polymer/iron-resizable-behavior/iron-resizable-behavior';
+import { IronResizableBehavior } from '@polymer/iron-resizable-behavior/iron-resizable-behavior';
 
 /**
 `s-circle-progress`
@@ -75,7 +75,7 @@ var SCircleProgress = Polymer({
   is: 's-circle-progress',
 
   behaviors: [
-    Polymer.IronResizableBehavior
+    IronResizableBehavior
   ],
 
   properties: {
