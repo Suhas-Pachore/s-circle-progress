@@ -1,17 +1,15 @@
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+import { Polymer,html } from '@polymer/polymer/polymer-legacy.js';
+import '@polymer/iron-flex-layout/iron-flex-layout';
+import '@polymer/iron-resizable-behavior/iron-resizable-behavior';
 
-<!--
+/**
 `s-circle-progress`
 Polymer-based web component displaying a circular progress bar.
 
 @demo demo/index.html
--->
+**/
 
-<dom-module id="s-circle-progress">
-<template>
-
+const template = html`
 <style>
 
 :host {
@@ -71,11 +69,9 @@ slot::slotted(*) {
 </svg>
 
 <slot></slot>
+`;
 
-</template>
-<script>
-
-Polymer({
+var SCircleProgress = Polymer({
   is: 's-circle-progress',
 
   behaviors: [
@@ -179,5 +175,3 @@ Polymer({
   }
 });
 
-</script>
-</dom-module>
