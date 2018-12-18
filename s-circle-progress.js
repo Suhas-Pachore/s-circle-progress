@@ -74,6 +74,8 @@ slot::slotted(*) {
 var SCircleProgress = Polymer({
   is: 's-circle-progress',
 
+  _template: template,
+
   behaviors: [
     IronResizableBehavior
   ],
