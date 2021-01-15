@@ -2,7 +2,7 @@
 
 # \<s-circle-progress\>
 
-Polymer-based web component displaying a circular progress bar.
+Native web component displaying a circular progress bar.
 
 Inspired by element [\<progress-bubble\>](https://github.com/tehapo/progress-bubble).
 
