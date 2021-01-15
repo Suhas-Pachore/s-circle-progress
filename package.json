@@ -18,9 +18,7 @@
     "url": "https://github.com/Suhas-Pachore/s-circle-progress.git"
   },
   "dependencies": {
-    "@polymer/polymer": "^3.0.0",
-    "@polymer/iron-flex-layout": "^3.0.0-pre.18",
-    "@polymer/iron-resizable-behavior": "^3.0.1"
+    "@polymer/polymer": "^3.0.0"
   },
   "devDependencies": {
     "webmat": "^0.2.0",
