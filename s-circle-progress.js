@@ -1,179 +1,143 @@
-import { Polymer,html } from '@polymer/polymer/polymer-legacy.js';
 
 /**
 `s-circle-progress`
-Polymer-based web component displaying a circular progress bar.
+Native web component displaying a circular progress bar.
+Built using vanillaJS, HTML and CSS with no dependencies.
 
 @demo demo/index.html
 **/
+let template = document.createElement('template');
+template.innerHTML = `
+  <style>
+  :host {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
 
-const template = html`
-<style>
+    position: relative;
 
-:host {
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  -ms-flex-direction: column;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  -ms-flex-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 24px;
 
-  position: relative;
+    border-radius: 50%;
+  }
 
-  width: 64px;
-  height: 64px;
-  margin: 24px;
+  svg {
+    position: absolute;
+    top: 0;
+    left: 0;
 
-  border-radius: 50%;
-}
+    display: none;
+  }
 
-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
+  .Circle-background {
+    stroke: var(--s-circle-progress-bg-stroke-color, var(--paper-grey-100, #EFEFEF));
+  }
 
-  display: none;
-}
+  .Circle-foreground {
+    transition: stroke-dashoffset 150ms;
 
-.Circle-background {
-  stroke: var(--s-circle-progress-bg-stroke-color, var(--paper-grey-100));
-}
+    stroke: var(--s-circle-progress-stroke-color, var(--accent-color, #FF3755));
+    stroke-linecap: var(--s-circle-progress-stroke-linecap, round);
+  }
 
-.Circle-foreground {
-  transition: stroke-dashoffset 150ms;
+  slot::slotted(*) {
+    text-align: center;
+  }
 
-  stroke: var(--s-circle-progress-stroke-color, var(--accent-color));
-  stroke-linecap: var(--s-circle-progress-stroke-linecap, round);
-}
+  </style>
 
-slot::slotted(*) {
-  text-align: center;
-}
-
-</style>
-
-<svg id="circle" width="100%" height="100%">
-  <circle class="Circle-background"
-      r$="[[_radius]]"
-      cx$="[[_cx]]"
-      cy$="[[_cy]]"
-      fill="transparent"
-      stroke-width$="[[strokeWidth]]" />
-  <circle class="Circle-foreground"
-      r$="[[_radius]]"
-      cx$="[[_cx]]"
-      cy$="[[_cy]]"
-      fill="transparent"
-      stroke-width$="[[strokeWidth]]"
-      stroke-dasharray$="[[_dasharray]]"
-      stroke-dashoffset$="[[_dashoffset]]"
-      transform$="[[_transform]]" />
-</svg>
-
-<slot></slot>
+  <svg id="circle" width="100%" height="100%">
+    
+  </svg>
+  <slot></slot>
 `;
 
-var SCircleProgress = Polymer({
-  is: 's-circle-progress',
+class SCircleProgress extends HTMLElement {
+  constructor() {
+    super();
 
-  _template: template,
+    this._computeSizeOnAttached = this._computeSizeOnAttached.bind(this);
+    this._upgradeProperty = this._upgradeProperty.bind(this);
 
-  properties: {
-    /**
-     * Value of circular progress bar.
-     */
-    value: {
-      type: Number,
-      value: 0
-    },
+    let shadowRoot = this.attachShadow({mode: 'open'});
+    shadowRoot.appendChild(template.content.cloneNode(true));
+  }
 
-    /**
-     * Maximum of value.
-     */
-    max: {
-      type: Number,
-      value: 100
-    },
+  //gathering data from element attributes
+  get value() {
+    return this.getAttribute('value') || 0;
+  }
+  get max() {
+    return this.getAttribute('max') || 100;
+  }
+  get strokeWidth() {
+    return this.getAttribute('stroke-width') || 4;
+  }
+  get angle() {
+    return this.getAttribute('angle') || -90;
+  }
 
-    /**
-     * Stroke width of circle.
-     */
-    strokeWidth: {
-      type: Number,
-      value: 4
-    },
+  // fires after the element has been attached to the DOM
+  connectedCallback() {
 
-    /**
-     * Starting angle of the progress.
-     */
-    angle: {
-      type: Number,
-      value: -90
-    },
+    this._upgradeProperty('value');
+    this._upgradeProperty('max');
+    this._upgradeProperty('stroke-width');
+    this._upgradeProperty('angle');
 
-    _cx: {
-      type: Number,
-      value: null
-    },
+    this._computeSizeOnAttached();
 
-    _cy: {
-      type: Number,
-      value: null
-    },
+    let circle = this.shadowRoot.getElementById('circle');
+    circle.style.display = 'block'; 
+    circle.innerHTML = `
+      <circle class="Circle-background"
+        r="${this._radius}"
+        cx="${this._cx}"
+        cy="${this._cy}"
+        fill="transparent"
+        stroke-width="${this.strokeWidth}" />
+      <circle class="Circle-foreground"
+        r="${this._radius}"
+        cx="${this._cx}"
+        cy="${this._cy}"
+        fill="transparent"
+        stroke-width="${this.strokeWidth}"
+        stroke-dasharray="${this._dasharray}"
+        stroke-dashoffset="${this._dashoffset}"
+        transform="${this._transform}" />
+      `;
+  }
 
-    _radius: {
-      type: Number,
-      computed: '_computeRadius(_cx, _cy, strokeWidth)'
-    },
-
-    _transform: {
-      type: String,
-      computed: '_computeTransform(angle, _cx, _cy)'
-    },
-
-    _dasharray: {
-      type: Number,
-      computed: '_computeDashArray(_radius)'
-    },
-
-    _dashoffset: {
-      type: Number,
-      computed: '_computeDashOffset(value, max, _dasharray)'
+  _upgradeProperty(prop) {
+    if (this.hasOwnProperty(prop)) {
+      let value = this[prop];
+      delete this[prop];
+      this[prop] = value;
     }
-  },
+  }
 
-  attached() {
-    this.async(this._computeSizeOnAttached, 1);
-  },
-
-  _computeDashArray: function(radius) {
-    return 2 * Math.PI * radius;
-  },
-
-  _computeDashOffset: function(value, max, dasharray) {
-    return (1 - value / max) * dasharray;
-  },
-
-  _computeRadius: function(cx, cy, strokeWidth) {
-    return cx && cy ? Math.max(0, Math.min(cx, cy) - strokeWidth / 2) : 0;
-  },
-
-  _computeTransform: function(angle, cx, cy) {
-    return cx && cy ? 'rotate(' + angle + ', ' + cx + ', ' + cy + ')' : '';
-  },
-
-  _computeSizeOnAttached: function() {
+  _computeSizeOnAttached() {
     if (this.offsetWidth && this.offsetHeight) {
       this._cx = this.offsetWidth / 2;
       this._cy = this.offsetHeight / 2;
-      this.$.circle.style.display = 'block';
+      this._radius = Math.max(0, Math.min(this._cx, this._cy) - this.strokeWidth / 2);
+      this._transform = 'rotate(' + this.angle + ', ' + this._cx + ', ' + this._cy + ')';
+      this._dasharray = 2 * Math.PI * this._radius;
+      this._dashoffset = (1 - this.value / this.max) * this._dasharray;
     }
   }
-});
+}
+
+window.customElements.define('s-circle-progress', SCircleProgress);
 

@@ -1,8 +1,9 @@
 {
   "name": "s-circle-progress",
-  "description": "Polymer-based web component displaying a circular progress bar.",
+  "description": "Native web component displaying a circular progress bar.",
   "authors": [
-    "The StartPolymer Project Authors (https://github.com/StartPolymer/authors)"
+    "The StartPolymer Project Authors (https://github.com/StartPolymer/authors)",
+    "Suhas-Pachore converted to native web component with vanilla JS/HTML/CSS"
   ],
   "license": "MIT",
   "keywords": [
@@ -11,15 +12,13 @@
     "circle",
     "progress"
   ],
-  "version": "3.0.0-pre.1",
+  "version": "4.0.0",
   "main": "s-circle-progress.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Suhas-Pachore/s-circle-progress.git"
   },
-  "dependencies": {
-    "@polymer/polymer": "^3.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "webmat": "^0.2.0",
     "@polymer/paper-styles": "^3.0.0-pre.26",
