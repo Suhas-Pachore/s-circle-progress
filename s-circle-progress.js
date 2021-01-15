@@ -1,6 +1,4 @@
 import { Polymer,html } from '@polymer/polymer/polymer-legacy.js';
-import '@polymer/iron-flex-layout/iron-flex-layout';
-import { IronResizableBehavior } from '@polymer/iron-resizable-behavior/iron-resizable-behavior';
 
 /**
 `s-circle-progress`
@@ -13,8 +11,18 @@ const template = html`
 <style>
 
 :host {
-  @apply(--layout-vertical);
-  @apply(--layout-center-center);
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
 
   position: relative;
 
@@ -75,10 +83,6 @@ var SCircleProgress = Polymer({
   is: 's-circle-progress',
 
   _template: template,
-
-  behaviors: [
-    IronResizableBehavior
-  ],
 
   properties: {
     /**
@@ -144,12 +148,8 @@ var SCircleProgress = Polymer({
     }
   },
 
-  listeners: {
-    "iron-resize": "_onIronResize"
-  },
-
   attached() {
-    this.async(this.notifyResize, 1);
+    this.async(this._computeSizeOnAttached, 1);
   },
 
   _computeDashArray: function(radius) {
@@ -168,7 +168,7 @@ var SCircleProgress = Polymer({
     return cx && cy ? 'rotate(' + angle + ', ' + cx + ', ' + cy + ')' : '';
   },
 
-  _onIronResize: function() {
+  _computeSizeOnAttached: function() {
     if (this.offsetWidth && this.offsetHeight) {
       this._cx = this.offsetWidth / 2;
       this._cy = this.offsetHeight / 2;
