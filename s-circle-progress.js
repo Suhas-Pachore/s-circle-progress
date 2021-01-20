@@ -64,39 +64,109 @@ template.innerHTML = `
 `;
 
 class SCircleProgress extends HTMLElement {
+
+  static get observedAttributes() {
+    return [
+      'value',
+      'max',
+      'stroke-width',
+      'angle'
+    ];
+  }
+
   constructor() {
     super();
 
-    this._computeSizeOnAttached = this._computeSizeOnAttached.bind(this);
+    this._render = this._render.bind(this);
+    this._computeSize = this._computeSize.bind(this);
     this._upgradeProperty = this._upgradeProperty.bind(this);
 
     let shadowRoot = this.attachShadow({mode: 'open'});
     shadowRoot.appendChild(template.content.cloneNode(true));
   }
 
-  //gathering data from element attributes
+  //gathering data from element attributes and setter methods for properties
+  //value
   get value() {
     return this.getAttribute('value') || 0;
   }
+  set value(val) {
+    this.setAttribute('value',val);
+  }
+
+  //max
   get max() {
     return this.getAttribute('max') || 100;
   }
+  set max(val) {
+    this.setAttribute('max',val);
+  }
+
+  //strokeWidth
   get strokeWidth() {
     return this.getAttribute('stroke-width') || 4;
   }
+  set strokeWidth(val) {
+    this.setAttribute('stroke-width',val);
+  }
+
+  //angle
   get angle() {
     return this.getAttribute('angle') || -90;
+  }
+  set angle(val) {    
+    this.setAttribute('angle',val);
   }
 
   // fires after the element has been attached to the DOM
   connectedCallback() {
-
     this._upgradeProperty('value');
     this._upgradeProperty('max');
-    this._upgradeProperty('stroke-width');
+    this._upgradeProperty('strokeWidth');
     this._upgradeProperty('angle');
+  }
 
-    this._computeSizeOnAttached();
+  attributeChangedCallback(attr, oldVal, newVal){
+    if(oldVal !== newVal){
+      switch(attr) {
+        case 'value':
+          this.value = newVal;
+          break;
+        case 'max':
+          this.max = newVal;
+          break;
+        case 'stroke-width':
+          this.strokeWidth = newVal;
+          break;
+        case 'angle':
+          this.angle = newVal;
+          break;
+      }
+      this._render();
+    }
+  }
+
+  _upgradeProperty(prop) {
+    if (this.hasOwnProperty(prop)) {
+      let value = this[prop];
+      delete this[prop];
+      this[prop] = value;
+    }
+  }
+
+  _computeSize() {
+    if (this.offsetWidth && this.offsetHeight) {
+      this._cx = this.offsetWidth / 2;
+      this._cy = this.offsetHeight / 2;
+      this._radius = Math.max(0, Math.min(this._cx, this._cy) - this.strokeWidth / 2);
+      this._transform = 'rotate(' + this.angle + ', ' + this._cx + ', ' + this._cy + ')';
+      this._dasharray = 2 * Math.PI * this._radius;
+      this._dashoffset = (1 - this.value / this.max) * this._dasharray;
+    }
+  }
+
+  _render() {
+    this._computeSize();
 
     let circle = this.shadowRoot.getElementById('circle');
     circle.style.display = 'block'; 
@@ -117,25 +187,6 @@ class SCircleProgress extends HTMLElement {
         stroke-dashoffset="${this._dashoffset}"
         transform="${this._transform}" />
       `;
-  }
-
-  _upgradeProperty(prop) {
-    if (this.hasOwnProperty(prop)) {
-      let value = this[prop];
-      delete this[prop];
-      this[prop] = value;
-    }
-  }
-
-  _computeSizeOnAttached() {
-    if (this.offsetWidth && this.offsetHeight) {
-      this._cx = this.offsetWidth / 2;
-      this._cy = this.offsetHeight / 2;
-      this._radius = Math.max(0, Math.min(this._cx, this._cy) - this.strokeWidth / 2);
-      this._transform = 'rotate(' + this.angle + ', ' + this._cx + ', ' + this._cy + ')';
-      this._dasharray = 2 * Math.PI * this._radius;
-      this._dashoffset = (1 - this.value / this.max) * this._dasharray;
-    }
   }
 }
 
