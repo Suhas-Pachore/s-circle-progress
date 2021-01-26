@@ -27,9 +27,6 @@ template.innerHTML = `
 
     width: 64px;
     height: 64px;
-    margin: 24px;
-
-    border-radius: 50%;
   }
 
   svg {
@@ -45,7 +42,7 @@ template.innerHTML = `
   }
 
   .Circle-foreground {
-    transition: stroke-dashoffset 150ms;
+    transition: stroke-dashoffset 300ms;
 
     stroke: var(--s-circle-progress-stroke-color, var(--accent-color, #FF3755));
     stroke-linecap: var(--s-circle-progress-stroke-linecap, round);
@@ -58,7 +55,10 @@ template.innerHTML = `
   </style>
 
   <svg id="circle" width="100%" height="100%">
-    
+    <circle class="Circle-background"
+      fill="transparent"/>
+    <circle class="Circle-foreground"
+      fill="transparent"/>
   </svg>
   <slot></slot>
 `;
@@ -142,7 +142,7 @@ class SCircleProgress extends HTMLElement {
           this.angle = newVal;
           break;
       }
-      this._render();
+      setTimeout(this._render,0);
     }
   }
 
@@ -160,7 +160,7 @@ class SCircleProgress extends HTMLElement {
       this._cy = this.offsetHeight / 2;
       this._radius = Math.max(0, Math.min(this._cx, this._cy) - this.strokeWidth / 2);
       this._transform = 'rotate(' + this.angle + ', ' + this._cx + ', ' + this._cy + ')';
-      this._dasharray = 2 * Math.PI * this._radius;
+      this._dasharray = (2 * Math.PI * this._radius) - this.strokeWidth; //strokeWidth is subtracted to compensate for the circle caps at the stroke ends.
       this._dashoffset = (1 - this.value / this.max) * this._dasharray;
     }
   }
@@ -170,23 +170,28 @@ class SCircleProgress extends HTMLElement {
 
     let circle = this.shadowRoot.getElementById('circle');
     circle.style.display = 'block'; 
-    circle.innerHTML = `
-      <circle class="Circle-background"
-        r="${this._radius}"
-        cx="${this._cx}"
-        cy="${this._cy}"
-        fill="transparent"
-        stroke-width="${this.strokeWidth}" />
-      <circle class="Circle-foreground"
-        r="${this._radius}"
-        cx="${this._cx}"
-        cy="${this._cy}"
-        fill="transparent"
-        stroke-width="${this.strokeWidth}"
-        stroke-dasharray="${this._dasharray}"
-        stroke-dashoffset="${this._dashoffset}"
-        transform="${this._transform}" />
-      `;
+
+    let circleBackground = circle.getElementsByClassName("Circle-background")[0];
+    let circleForeground = circle.getElementsByClassName("Circle-foreground")[0];
+
+    circleBackground && circleBackground.setAttribute("r",this._radius);
+    circleBackground && circleBackground.setAttribute("cx",this._cx);
+    circleBackground && circleBackground.setAttribute("cy",this._cy);
+    circleBackground && circleBackground.setAttribute("stroke-width",this.strokeWidth);
+
+    circleForeground && circleForeground.setAttribute("r",this._radius);
+    circleForeground && circleForeground.setAttribute("cx",this._cx);
+    circleForeground && circleForeground.setAttribute("cy",this._cy);
+    circleForeground && circleForeground.setAttribute("stroke-width",this.strokeWidth);
+    circleForeground && circleForeground.setAttribute("transform",this._transform);
+
+    circleForeground && circleForeground.setAttribute("stroke-dasharray",this._dasharray);
+    circleForeground && circleForeground.setAttribute("stroke-dashoffset",this._dasharray);
+
+    let self=this;
+    setTimeout(function() {
+      circleForeground && circleForeground.setAttribute("stroke-dashoffset",(self._dashoffset));
+    },0);
   }
 }
 
